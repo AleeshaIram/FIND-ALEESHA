@@ -620,7 +620,8 @@
     const prevBg=dlgEl.style.background; dlgEl.style.background="transparent"; dlgEl.style.display="flex";
     dlgNext.onclick=()=>{ dlgEl.style.display="none"; dlgEl.style.background=prevBg||""; dlgBubble.style.display=""; dlgText.style.display=""; modalActive=false; onNext&&onNext(); };
   }
-
+const JUMPS_GOAL_TOTAL = 65; // progress target
+let progressBase = 0;        // <-- move this here
   /* Input */
   function jump(){
     if (!started || dead || cutState !== CUT.NONE || inCooking || modalActive) return;
@@ -711,7 +712,8 @@
   startHotspot.onclick = (e)=>{ e.preventDefault(); startGame(); };
 
 function setProgress(){
-  const total = Math.min(JUMPS_GOAL_TOTAL, progressBase + jumps);
+  const base = Number.isFinite(progressBase) ? progressBase : 0;
+  const total = Math.min(JUMPS_GOAL_TOTAL, base + jumps);
   barFill.style.width = Math.round((total / JUMPS_GOAL_TOTAL) * 100) + "%";
 }
 
@@ -1579,13 +1581,13 @@ setProgress();
   /* Kickoff */
   resizeCanvas();
   reset();
-  progressBase = 0;
 setProgress();
   bakeryDone = false;
   
 </script>
 </body>
 </html>
+
 
 
 
