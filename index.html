@@ -513,6 +513,8 @@ Love, your Leeshie 🤍`;
   const toastEl = document.getElementById("toast");
   const retryCpBtn = document.getElementById("retryCp");
   const letterEl = document.getElementById("letter");
+  const letterImgEl = document.getElementById("letterImg");
+if (letterImgEl) letterImgEl.src = "scroll.png?v=2";
 
   document.getElementById("gift").textContent = GIFT_CODE;
 
@@ -1596,18 +1598,10 @@ Love, your Leeshie 🤍`;
   bakeryDone = false;
 })();
 </script>
-  </script>
-
-<!-- 📜 Scroll Letter Overlay -->
-<div id="letter" class="overlay" role="dialog" aria-modal="true">
-  <div id="letterWrap">
-    <img id="letterImg" src="scroll.png" alt="scroll">
-    <div id="letterText"></div>
-    <button id="letterBtn" class="btn">Continue</button>
-  </div>
 </div>
 </body>
 </html>
+
 
 
 
