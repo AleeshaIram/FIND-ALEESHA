@@ -51,7 +51,7 @@
 
 #cookHint {
   position: absolute;
-  top: 26px;
+  top: 30px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
@@ -81,13 +81,18 @@
   border-top:8px solid #ffd053;
   filter:drop-shadow(0 2px 0 rgba(0,0,0,.35));
 }
-#cookHint.loud{
-  animation:hintPulse 1.2s ease-in-out 2;
-  box-shadow:
-    0 8px 32px rgba(0,0,0,.6),
-    0 0 36px rgba(255,208,83,.38) inset,
-    0 0 18px rgba(255,208,83,.45);
+#cookHint::after{
+  content:"";
+  position:absolute; bottom:-8px; left:50%; transform:translateX(-50%);
+  width:0; height:0;
+  border-left:8px solid transparent;
+  border-right:8px solid transparent;
+  border-top:8px solid #ffd053;
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.35));
 }
+  @media (max-width: 700px){
+  #cookHint{ top: 16%; }
+    
 @keyframes hintPulse{
   0%,100%{ transform:translateX(-50%) scale(1); }
   50%{    transform:translateX(-50%) scale(1.06); }
@@ -1585,4 +1590,5 @@ Love you snookums
 </script>
 </body>
 </html>
+
 
