@@ -49,13 +49,46 @@
 
   #cookGirl{ position:absolute; bottom:7%; left:50%; transform:translateX(-50%); width:240px; image-rendering:pixelated; pointer-events:none; }
 
-  #cookHint{
-    position:absolute; top:10px; left:10px; z-index:2;
-    display:inline-flex; align-items:center; gap:8px;
-    font-size:18px; font-weight:900; letter-spacing:.2px;
-    background:rgba(0,0,0,.65); border:1px solid rgba(255,255,255,.25);
-    padding:8px 12px; border-radius:10px; box-shadow:0 2px 14px rgba(0,0,0,.5);
-  }
+  /* REPLACE your existing #cookHint with this */
+#cookHint{
+  position:absolute; top:10px; left:12%; transform:none; /* center it */
+  z-index:2; display:inline-flex; align-items:center; gap:10px;
+
+  font-size:22px; font-weight:900; letter-spacing:.2px; color:#fff;
+  text-shadow:0 2px 6px rgba(0,0,0,.6);
+
+  background:linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.58));
+  border:2px solid #ffd053;
+  padding:10px 16px;
+  border-radius:12px;
+  box-shadow:
+    0 6px 28px rgba(0,0,0,.55),
+    0 0 24px rgba(255,208,83,.25) inset;
+
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+#cookHint::after{
+  content:"";
+  position:absolute; bottom:-8px; left:50%; transform:translateX(-50%);
+  width:0; height:0;
+  border-left:8px solid transparent;
+  border-right:8px solid transparent;
+  border-top:8px solid #ffd053;
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.35));
+}
+#cookHint.loud{
+  animation:hintPulse 1.2s ease-in-out 2;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,.6),
+    0 0 36px rgba(255,208,83,.38) inset,
+    0 0 18px rgba(255,208,83,.45);
+}
+@keyframes hintPulse{
+  0%,100%{ transform:translateX(-50%) scale(1); }
+  50%{    transform:translateX(-50%) scale(1.06); }
+}
+
 
   #woodBoard{ position:absolute; left:0; right:0; bottom:30px; height:80px; background:url("wood.png") center/cover no-repeat; image-rendering:pixelated; pointer-events:none; }
   #cookTable{ position:absolute; left:0; right:0; bottom:0; height:28%; background:transparent; }
@@ -1160,6 +1193,11 @@ document.getElementById("letterBtn").onclick = (e) => {
   let cookStep = 0;
 
   const cookHint  = document.getElementById("cookHint");
+  function bumpHint(){
+  cookHint.classList.remove('loud');
+  void cookHint.offsetWidth; // reflow to restart animation
+  cookHint.classList.add('loud');
+}
   const bowlHotspot = document.getElementById("bowlHotspot");
   const bowlGlow = document.getElementById("bowlGlow");
   const layerButter = document.getElementById("layer-butter");
@@ -1200,7 +1238,9 @@ document.getElementById("letterBtn").onclick = (e) => {
   function startBaking(){
     inCooking = true; running = false; hideGlobalUI();
     cookStep = 0; eggState = "none";
-    cookHint.style.display = "inline-flex"; cookHint.innerHTML = "<b>🧈 butter first</b>";
+    cookHint.style.display = "inline-flex";
+cookHint.innerHTML = "<b>🧈 butter first</b>";
+bumpHint();
 
     [layerButter, layerSugar, layerEgg, layerFlour, layerChips].forEach(el=>{ el.style.display="none"; el.style.opacity="1"; el.style.transform="translateX(-50%)"; });
 
@@ -1342,14 +1382,23 @@ document.getElementById("letterBtn").onclick = (e) => {
   function advanceIfCorrect(key){
     if (key !== cookOrder[cookStep]) return;
     cookStep++; const next = cookOrder[cookStep];
-    if (next){ cookHint.innerHTML = `<b>${pretty(next)} next</b>`; }
-    else { showDlg("hold mouse down and stir\nclockwise in the bowl to mix.", enableStir, { inset: "18% 14% 38% 18%", size: "clamp(20px, 2.3vw, 32px)" }); }
-  }
+    if (next){
+  cookHint.innerHTML = `<b>${pretty(next)} next</b>`;
+  bumpHint();
+} else {
+  showDlg(
+    "hold mouse down and stir\nclockwise in the bowl to mix.",
+    enableStir,
+    { inset:"20% 16% 40% 22%", size:"clamp(20px,2.4vw,32px)" }
+  );
+}
+}
 
   /* STIRRING */
   let stirActive=false, stirAccum=0, lastAngle=null;
   function enableStir(){
     cookHint.innerHTML = "<b>Stir in circles!</b>";
+    bumpHint();
     stirRing.style.display = "block"; stirText.style.display = "block";
     bowlHotspot.classList.remove("pulse","magnet");
     bowlHotspot.classList.add("active");
@@ -1522,3 +1571,4 @@ document.getElementById("letterBtn").onclick = (e) => {
 </script>
 </body>
 </html>
+
