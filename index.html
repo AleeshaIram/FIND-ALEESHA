@@ -207,24 +207,45 @@
   #ovenClock{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:min(32vw,220px); display:none; image-rendering:pixelated; z-index:5; }
   #sleepImg{ position:absolute; left:50%; bottom:2%; transform:translateX(-50%); width:min(50vw,420px); display:none; image-rendering:pixelated; z-index:5; }
 
-  /* Love letter overlay */
-  #letter { background:rgba(0,0,0,.8); }
-  #letterWrap{ position:relative; }
-  #letterImg{ display:block; width:100%; height:100%; object-fit:contain; image-rendering:pixelated; }
-  #letterText {
-    position: absolute;
-    inset: 12% 16% 18% 16%;
-    font-family: 'VT323', monospace;
-    font-size: 24px;
-    line-height: 1.3;
-    text-align: center;
-    white-space: pre-line;
-    color: #2b1a0b;
-    text-shadow: 0 1px 1px rgba(255,255,255,0.5);
-  }
-  #letterBtn{ position:absolute; left:50%; transform:translateX(-50%); bottom:4%; }
+/* Full-screen scroll letter */
+#letter{
+  background: rgba(0,0,0,.80);
+  display:none; align-items:center; justify-content:center;
+  z-index:30;
+}
+#letterWrap{
+  position:relative;
+  /* make it huge: prioritize viewport height so it "fills" the screen */
+  height: min(92vh, 1100px);
+  width: min(96vw, 2000px);
+  aspect-ratio: 16 / 9;              /* wide parchment vibe */
+}
+#letterImg{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:contain; image-rendering:pixelated;
+}
 
-  /* Make stirring bulletproof */
+#letterText{
+  position:absolute;
+  inset: 12% 10% 18% 10%;             /* top / right / bottom / left */
+  font-family:'VT323', monospace;
+  font-size: clamp(20px, 2.6vw, 42px); /* scale with size */
+  line-height: 1.28;
+  text-align:center;
+  color:#2b1a0b;
+  text-shadow: 0 1px 1px rgba(255,255,255,.5);
+  overflow:auto;
+}
+
+#letterBtn{
+  position:absolute;
+  left:50%; transform:translateX(-50%);
+  bottom: 6%;
+  padding: 14px 24px;
+  font-size: clamp(14px, 1.6vw, 20px);
+}
+
   #cookScene, #cookScene * { -webkit-user-select:none; user-select:none; }
   #stirRing, #stirText { pointer-events:none; }
   #bowlHotspot { z-index:6; }
@@ -1607,3 +1628,4 @@ Love, your Leeshie 🤍`;
 </script>
 </body>
 </html>
+
