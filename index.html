@@ -429,6 +429,7 @@
   const ROUND3_AT = 40;
   const ROUND4_JUMPS_GOAL = 25;
   const JUMPS_GOAL_TOTAL = 65; // progress target
+  let progressBase = 0;   // << add this near the top with the other consts
 
   const BASE_SPEED = 4.8;
   const GRAVITY = 0.4;
@@ -1581,12 +1582,12 @@ setProgress();
   /* Kickoff */
   resizeCanvas();
   reset();
-setProgress();
   bakeryDone = false;
   
 </script>
 </body>
 </html>
+
 
 
 
