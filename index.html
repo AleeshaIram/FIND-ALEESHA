@@ -515,6 +515,11 @@
 
   let highScore = Number(localStorage.getItem("catRunnerHighScore") || 0);
   highEl.textContent = highScore;
+const JUMPS_GOAL_TOTAL = 65;   // total jumps for full bar
+const MILESTONE_R2 = 20;       // progress bar at round 2
+const MILESTONE_R4 = 40;       // progress bar at round 4
+let progressBase = 0;          // keeps progress after dying
+
 
   function applySprite(img, targetW){
     heroReady = true;
@@ -706,11 +711,17 @@
   }
   startHotspot.onclick = (e)=>{ e.preventDefault(); startGame(); };
 
-  /* Progress helper */
-  function setProgress(){
-    barFill.style.width =
-      Math.min(100, Math.round((jumps / JUMPS_GOAL_TOTAL) * 100)) + "%";
+function setProgress(){
+  const total = Math.min(JUMPS_GOAL_TOTAL, progressBase + jumps);
+  barFill.style.width = Math.round((total / JUMPS_GOAL_TOTAL) * 100) + "%";
+}
+
+function bumpBase(to){
+  if (to > progressBase){
+    progressBase = to;
+    setProgress();
   }
+}
 
   /* Spawning */
   function pick(min, max){ return Math.floor(min + Math.random() * (max - min)); }
@@ -1571,4 +1582,5 @@ bumpHint();
 </script>
 </body>
 </html>
+
 
