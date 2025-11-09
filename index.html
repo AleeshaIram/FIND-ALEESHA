@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -26,7 +26,7 @@
 
   #progWrap{ position:fixed; top:10px; right:60px; width:210px; background:var(--glass); padding:8px 10px; border-radius:12px; z-index:3; }
   #bar{ height:8px; background:#2a2f55; border-radius:999px; overflow:hidden; margin-top:6px }
-  #bar>i{ display:block; height:100%; width:0%; background:linear-gradient(90deg,#69f,#ff7ecb); transition:width .3s ease; } /* smooth progress */
+  #bar>i{ display:block; height:100%; width:0%; background:linear-gradient(90deg,#69f,#ff7ecb); transition:width .3s ease; }
   #labels{ display:flex; justify-content:space-between; font-size:12px; opacity:.9 }
 
   #toast { position:fixed; top:78px; left:50%; transform:translateX(-50%); background:rgba(255,255,255,.08);
@@ -49,13 +49,49 @@
 
   #cookGirl{ position:absolute; bottom:7%; left:50%; transform:translateX(-50%); width:240px; image-rendering:pixelated; pointer-events:none; }
 
-  #cookHint{
-    position:absolute; top:10px; left:10px; z-index:2;
-    display:inline-flex; align-items:center; gap:8px;
-    font-size:18px; font-weight:900; letter-spacing:.2px;
-    background:rgba(0,0,0,.65); border:1px solid rgba(255,255,255,.25);
-    padding:8px 12px; border-radius:10px; box-shadow:0 2px 14px rgba(0,0,0,.5);
-  }
+#cookHint {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.4px;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
+
+  background: rgba(0, 0, 0, 0.45);
+  padding: 10px 18px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  transition: transform 0.18s ease, opacity 0.3s ease;
+}
+
+#cookHint::after{
+  content:"";
+  position:absolute; bottom:-8px; left:50%; transform:translateX(-50%);
+  width:0; height:0;
+  border-left:8px solid transparent;
+  border-right:8px solid transparent;
+  border-top:8px solid #ffd053;
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.35));
+}
+#cookHint.loud{
+  animation:hintPulse 1.2s ease-in-out 2;
+  box-shadow:
+    0 8px 32px rgba(0,0,0,.6),
+    0 0 36px rgba(255,208,83,.38) inset,
+    0 0 18px rgba(255,208,83,.45);
+}
+@keyframes hintPulse{
+  0%,100%{ transform:translateX(-50%) scale(1); }
+  50%{    transform:translateX(-50%) scale(1.06); }
+}
 
   #woodBoard{ position:absolute; left:0; right:0; bottom:30px; height:80px; background:url("wood.png") center/cover no-repeat; image-rendering:pixelated; pointer-events:none; }
   #cookTable{ position:absolute; left:0; right:0; bottom:0; height:28%; background:transparent; }
@@ -384,7 +420,17 @@
   const letterText = document.getElementById("letterText");
   if (letterText){
     letterText.textContent =
-`HAPPY BIRTHDAY\nBABY!! A love\nletter wont fit\nsoo LET ME KNOW\nWHEN YOU REACH\nTHIS PART, AND I\nWILL SEND THE\nREAL LETTER TO\nYOU!\nLove you snookums\n<3`;
+`HAPPY BIRTHDAY
+BABY!! A love
+letter wont fit
+soo LET ME KNOW
+WHEN YOU REACH
+THIS PART, AND I
+WILL SEND THE
+REAL LETTER TO
+YOU!
+Love you snookums
+<3`;
   }
 
   const GIFT_CODE = "SHEIN Numero de carte: 1113517585647802450   PIN: 5763";
@@ -392,6 +438,7 @@
   const ROUND3_AT = 40;
   const ROUND4_JUMPS_GOAL = 25;
   const JUMPS_GOAL_TOTAL = 65; // progress target
+  let progressBase = 0;        // base progress carried across rounds
 
   const BASE_SPEED = 4.8;
   const GRAVITY = 0.4;
@@ -470,7 +517,6 @@
   const openPresentImg = new Image(); openPresentImg.src = "open_present.png";
   const aleeshaImg = new Image();
   aleeshaImg.src = "Aleesha1.png";
-
 
   let heroReady=false, heroImg = heroR1;
   let frame=0, frameTimer=0, frameW=0, frameH=0;
@@ -585,6 +631,18 @@
   }
 
   /* Input */
+  function setProgress(){
+    const base = Number.isFinite(progressBase) ? progressBase : 0;
+    const total = Math.min(JUMPS_GOAL_TOTAL, base + jumps);
+    barFill.style.width = Math.round((total / JUMPS_GOAL_TOTAL) * 100) + "%";
+  }
+  function bumpBase(to){
+    if (to > progressBase){
+      progressBase = to;
+      setProgress();
+    }
+  }
+
   function jump(){
     if (!started || dead || cutState !== CUT.NONE || inCooking || modalActive) return;
     if (player.onGround){
@@ -672,12 +730,6 @@
     begin();
   }
   startHotspot.onclick = (e)=>{ e.preventDefault(); startGame(); };
-
-  /* Progress helper */
-  function setProgress(){
-    barFill.style.width =
-      Math.min(100, Math.round((jumps / JUMPS_GOAL_TOTAL) * 100)) + "%";
-  }
 
   /* Spawning */
   function pick(min, max){ return Math.floor(min + Math.random() * (max - min)); }
@@ -810,17 +862,13 @@
             spawnSparkles(present.x, present.y - 22);
             presentOpened = true;
             burstConfetti(present.x, present.y - 10);
-            // spawn Aleesha right when the cutscene starts
-aleesha.visible = true;
 
-// keep her slightly taller but proportional
-aleesha.h = player.h * 1.1; // taller than Fatt
-aleesha.w = aleesha.h * (aleeshaImg.width / aleeshaImg.height); // keep correct proportions
-
-// position next to present
-aleesha.x = present.x + present.w + 3;
-aleesha.y = FLOOR_Y - aleesha.h + FOOT_OFFSET;
-
+            // spawn Aleesha next to the present
+            aleesha.visible = true;
+            aleesha.h = player.h * 1.1; // slightly taller
+            aleesha.w = aleesha.h * (aleeshaImg.width / aleeshaImg.height);
+            aleesha.x = present.x + present.w + 3;
+            aleesha.y = FLOOR_Y - aleesha.h + FOOT_OFFSET;
 
             say("fatt","AAAAAH ITS ALEESHA!!!", () => {
               say("aleesha",
@@ -883,11 +931,10 @@ aleesha.y = FLOOR_Y - aleesha.h + FOOT_OFFSET;
     }
 
     if (!modalActive && cutState===CUT.NONE && !presentScene){
-  if (!endless){
-    for (const o of obstacles){ if (overlap(player,o)){ triggerDead(); return; } }
-  }
-}
-
+      if (!endless){
+        for (const o of obstacles){ if (overlap(player,o)){ triggerDead(); return; } }
+      }
+    }
 
     if (presentScene){
       const W = canvas.clientWidth, H = canvas.clientHeight || canvas.height;
@@ -932,6 +979,8 @@ aleesha.y = FLOOR_Y - aleesha.h + FOOT_OFFSET;
   }
 
   function startRound2(){
+    bumpBase(20);
+    setProgress();
     awaitingRound2 = false;
     round = 2; roundEl.textContent = "2";
 
@@ -1012,15 +1061,15 @@ aleesha.y = FLOOR_Y - aleesha.h + FOOT_OFFSET;
       if (flashAlpha > 0){ ctx.fillStyle = `rgba(255,255,255,${flashAlpha*0.6})`; ctx.fillRect(0,0,W,H); }
     }
 
-if (aleesha.visible && aleeshaImg.complete) {
-  ctx.drawImage(
-    aleeshaImg,
-    aleesha.x | 0,
-    aleesha.y | 0,
-    aleesha.w | 0,
-    aleesha.h | 0
-  );
-}
+    if (aleesha.visible && aleeshaImg.complete) {
+      ctx.drawImage(
+        aleeshaImg,
+        aleesha.x | 0,
+        aleesha.y | 0,
+        aleesha.w | 0,
+        aleesha.h | 0
+      );
+    }
 
     if (heroReady){
       const fx = (SPRITE_LAYOUT === "horizontal") ? frame * frameW : 0;
@@ -1069,45 +1118,43 @@ if (aleesha.visible && aleeshaImg.complete) {
   /* Checkpoint / modal */
   let checkpoint = null;
   function resetToCheckpoint(){
-  if (!checkpoint) return;
-  [winEl,overEl,cookEl,toastEl,dlgEl,letterEl].forEach(hide);
+    if (!checkpoint) return;
+    [winEl,overEl,cookEl,toastEl,dlgEl,letterEl].forEach(hide);
 
-  modalActive=false; running=false; dead=false; inCooking=false;
-  bakeryDone = (round >= 4);
-  cutState = CUT.NONE; bakery.visible=false; sparkles.length=0; heroAlpha = 1;
-  presentScene = false; fog = []; confetti = []; presentOpened = false;
-  if (typeof aleesha !== "undefined") aleesha.visible = false;
+    modalActive=false; running=false; dead=false; inCooking=false;
+    bakeryDone = (round >= 4);
+    cutState = CUT.NONE; bakery.visible=false; sparkles.length=0; heroAlpha = 1;
+    presentScene = false; fog = []; confetti = []; presentOpened = false;
+    if (typeof aleesha !== "undefined") aleesha.visible = false;
 
-  tLast=0; bgX=0; obstacles.length = 0;
+    tLast=0; bgX=0; obstacles.length = 0;
 
-  round = checkpoint.round || 2; roundEl.textContent = String(round);
-  score = checkpoint.score ?? ((round===2)?ROUND2_AT:0); scoreEl.textContent = String(score);
-  jumps = checkpoint.jumps ?? 0; jumpsEl.textContent = String(jumps);
-  setProgress();
+    round = checkpoint.round || 2; roundEl.textContent = String(round);
+    score = checkpoint.score ?? ((round===2)?ROUND2_AT:0); scoreEl.textContent = String(score);
+    jumps = checkpoint.jumps ?? 0; jumpsEl.textContent = String(jumps);
+    bumpBase(round >= 4 ? 40 : 20);
+    setProgress();
 
-  // Storm only in round 2; post-letter is dry England
-  if (round === 4){
-    storm = false;
-    heroImg = heroR3;
-    if (heroR3.complete) applySprite(heroR3, FATT3_W);
-    else heroR3.onload = () => applySprite(heroR3, FATT3_W);
-  } else {
-    storm = true; seedRain();
-    heroImg = heroR2;
-    if (heroR2.complete) applySprite(heroR2, FATT2_W);
-    else heroR2.onload = () => applySprite(heroR2, FATT2_W);
+    if (round === 4){
+      storm = false;
+      heroImg = heroR3;
+      if (heroR3.complete) applySprite(heroR3, FATT3_W);
+      else heroR3.onload = () => applySprite(heroR3, FATT3_W);
+    } else {
+      storm = true; seedRain();
+      heroImg = heroR2;
+      if (heroR2.complete) applySprite(heroR2, FATT2_W);
+      else heroR2.onload = () => applySprite(heroR2, FATT2_W);
+    }
+
+    endless = !!checkpoint.postLetter ? false : endless;
+
+    player.vy = 0; player.onGround = true; player.x = 120; player.y = FLOOR_Y - player.h + FOOT_OFFSET;
+
+    computeBgTileW(); resizeCanvas();
+    hud(true); toast(`⏪ Resumed from checkpoint (Round ${round})`);
+    begin();
   }
-
-  // Make sure death is enabled after letter
-  endless = !!checkpoint.postLetter ? false : endless;
-
-  player.vy = 0; player.onGround = true; player.x = 120; player.y = FLOOR_Y - player.h + FOOT_OFFSET;
-
-  computeBgTileW(); resizeCanvas();
-  hud(true); toast(`⏪ Resumed from checkpoint (Round ${round})`);
-  begin();
-}
-
 
   function triggerDead(){
     if (modalActive) return;
@@ -1125,31 +1172,31 @@ if (aleesha.visible && aleeshaImg.complete) {
   };
   document.getElementById("winContinue").onclick = (e)=>{ e.preventDefault(); hide(winEl); show(letterEl); };
   document.getElementById("closeWin").onclick   = (e)=>{ e.preventDefault(); hide(winEl); };
-document.getElementById("letterBtn").onclick = (e) => {
-  e.preventDefault();
-  hide(letterEl);
 
-  // Leave the cutscene and resume normal gameplay
-  presentScene = false;
-  winUnlocked  = false;
-  cutState     = CUT.NONE;    // <-- critical: unfreeze world
-  modalActive  = false;
+  document.getElementById("letterBtn").onclick = (e) => {
+    e.preventDefault();
+    hide(letterEl);
 
-  // We want normal deaths after the letter
-  endless = false;
+    // Leave the cutscene and resume normal gameplay
+    presentScene = false;
+    winUnlocked  = false;
+    cutState     = CUT.NONE;
+    modalActive  = false;
 
-  // If you added Aleesha NPC for the present scene, hide her now
-  if (typeof aleesha !== "undefined") aleesha.visible = false;
+    // We want normal deaths after the letter
+    endless = false;
 
-  // Save a checkpoint AFTER the letter
-  checkpoint = { round: 4, score, jumps, postLetter: true };
+    // Hide Aleesha NPC after present scene
+    if (typeof aleesha !== "undefined") aleesha.visible = false;
 
-  hud(true);
-  toast("Checkpoint saved — keep running!");
-  running = false;   // ensure fresh start of loop
-  begin();
-};
+    // Save a checkpoint AFTER the letter
+    checkpoint = { round: 4, score, jumps, postLetter: true };
 
+    hud(true);
+    toast("Checkpoint saved — keep running!");
+    running = false;
+    begin();
+  };
 
   document.getElementById("retry").onclick      = (e)=>{ e.preventDefault(); hide(overEl); reset(); hud(true); begin(); nextGapPx = 0; };
   document.getElementById("retryCp").onclick    = (e)=>{ e.preventDefault(); resetToCheckpoint(); nextGapPx = 0; };
@@ -1160,6 +1207,11 @@ document.getElementById("letterBtn").onclick = (e) => {
   let cookStep = 0;
 
   const cookHint  = document.getElementById("cookHint");
+  function bumpHint(){
+    cookHint.classList.remove('bump');
+    void cookHint.offsetWidth; // restart animation
+    cookHint.classList.add('bump');
+  }
   const bowlHotspot = document.getElementById("bowlHotspot");
   const bowlGlow = document.getElementById("bowlGlow");
   const layerButter = document.getElementById("layer-butter");
@@ -1200,7 +1252,9 @@ document.getElementById("letterBtn").onclick = (e) => {
   function startBaking(){
     inCooking = true; running = false; hideGlobalUI();
     cookStep = 0; eggState = "none";
-    cookHint.style.display = "inline-flex"; cookHint.innerHTML = "<b>🧈 butter first</b>";
+    cookHint.style.display = "inline-flex";
+    cookHint.innerHTML = "<b>🧈 butter first</b>";
+    bumpHint();
 
     [layerButter, layerSugar, layerEgg, layerFlour, layerChips].forEach(el=>{ el.style.display="none"; el.style.opacity="1"; el.style.transform="translateX(-50%)"; });
 
@@ -1342,14 +1396,23 @@ document.getElementById("letterBtn").onclick = (e) => {
   function advanceIfCorrect(key){
     if (key !== cookOrder[cookStep]) return;
     cookStep++; const next = cookOrder[cookStep];
-    if (next){ cookHint.innerHTML = `<b>${pretty(next)} next</b>`; }
-    else { showDlg("hold mouse down and stir\nclockwise in the bowl to mix.", enableStir, { inset: "18% 14% 38% 18%", size: "clamp(20px, 2.3vw, 32px)" }); }
+    if (next){
+      cookHint.innerHTML = `<b>${pretty(next)} next</b>`;
+      bumpHint();
+    } else {
+      showDlg(
+        "hold mouse down and stir\nclockwise in the bowl to mix.",
+        enableStir,
+        { inset:"20% 16% 40% 22%", size:"clamp(20px,2.4vw,32px)" }
+      );
+    }
   }
 
   /* STIRRING */
   let stirActive=false, stirAccum=0, lastAngle=null;
   function enableStir(){
     cookHint.innerHTML = "<b>Stir in circles!</b>";
+    bumpHint();
     stirRing.style.display = "block"; stirText.style.display = "block";
     bowlHotspot.classList.remove("pulse","magnet");
     bowlHotspot.classList.add("active");
@@ -1477,6 +1540,9 @@ document.getElementById("letterBtn").onclick = (e) => {
   function resumeAfterBaking(){
     hide(cookEl);
     inCooking = false; bakeryDone = true;
+    bumpBase(40);
+    jumps = 0;
+    setProgress();
 
     cutState = CUT.NONE; bakery.visible = false; heroAlpha = 1;
 
@@ -1515,9 +1581,6 @@ document.getElementById("letterBtn").onclick = (e) => {
   resizeCanvas();
   reset();
   bakeryDone = false;
-
-  /* tiny UX nicety: keep progress in sync initially */
-  function setProgress(){ barFill.style.width = Math.min(100, Math.round((jumps / JUMPS_GOAL_TOTAL) * 100)) + "%"; }
 })();
 </script>
 </body>
