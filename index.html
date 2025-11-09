@@ -961,9 +961,10 @@ Love you snookums
         if (r.y > H){ r.y = -r.len; r.x = Math.random()*W; }
         if (r.x < -10){ r.x = W + 10; } }
       if (nowMs - lastLightningMs > nextLightningMs){
-        flashAlpha = 1; shakeTime = 250; lastLightningMs = nowMs;
-        nextLightningMs = 1200 + Math.random()*2200;
-      }
+  flashAlpha = 1; // flash only, no shake
+  lastLightningMs = nowMs;
+  nextLightningMs = 1200 + Math.random()*2200;
+}
       flashAlpha = Math.max(0, flashAlpha - 0.06*step);
       shakeTime = Math.max(0, shakeTime - dtMs);
     }
@@ -1005,8 +1006,7 @@ Love you snookums
   /* Draw */
   function draw(){
     const W = canvas.clientWidth, H = canvas.clientHeight || canvas.height;
-    ctx.save();
-    if (shakeTime > 0){ const mag = 3; ctx.translate((Math.random()*2-1)*mag, (Math.random()*2-1)*mag); }
+    ctx.save(); // no camera shake
 
     ctx.clearRect(0,0,W,H);
 
@@ -1581,6 +1581,7 @@ Love you snookums
 </script>
 </body>
 </html>
+
 
 
 
