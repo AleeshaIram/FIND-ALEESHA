@@ -519,11 +519,6 @@
 
   let highScore = Number(localStorage.getItem("catRunnerHighScore") || 0);
   highEl.textContent = highScore;
-const JUMPS_GOAL_TOTAL = 65;   // total jumps for full bar
-const MILESTONE_R2 = 20;       // progress bar at round 2
-const MILESTONE_R4 = 40;       // progress bar at round 4
-let progressBase = 0;          // keeps progress after dying
-
 
   function applySprite(img, targetW){
     heroReady = true;
@@ -980,6 +975,8 @@ aleesha.y = FLOOR_Y - aleesha.h + FOOT_OFFSET;
   }
 
   function startRound2(){
+    bumpBase(20);
+setProgress();
     awaitingRound2 = false;
     round = 2; roundEl.textContent = "2";
 
@@ -1131,6 +1128,7 @@ if (aleesha.visible && aleeshaImg.complete) {
   round = checkpoint.round || 2; roundEl.textContent = String(round);
   score = checkpoint.score ?? ((round===2)?ROUND2_AT:0); scoreEl.textContent = String(score);
   jumps = checkpoint.jumps ?? 0; jumpsEl.textContent = String(jumps);
+  bumpBase(round >= 4 ? 40 : 20);
   setProgress();
 
   // Storm only in round 2; post-letter is dry England
@@ -1541,6 +1539,9 @@ bumpHint();
   function resumeAfterBaking(){
     hide(cookEl);
     inCooking = false; bakeryDone = true;
+    bumpBase(40);
+jumps = 0;
+setProgress();
 
     cutState = CUT.NONE; bakery.visible = false; heroAlpha = 1;
 
@@ -1578,14 +1579,14 @@ bumpHint();
   /* Kickoff */
   resizeCanvas();
   reset();
+  progressBase = 0;
+setProgress();
   bakeryDone = false;
-
-  /* tiny UX nicety: keep progress in sync initially */
-  function setProgress(){ barFill.style.width = Math.min(100, Math.round((jumps / JUMPS_GOAL_TOTAL) * 100)) + "%"; }
-})();
+  
 </script>
 </body>
 </html>
+
 
 
 
